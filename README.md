@@ -1,1 +1,1 @@
-# crmp-samp-2.0-BattlePass
+# deleted
