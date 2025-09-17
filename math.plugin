@@ -1,0 +1,133 @@
+from base_plugin import BasePlugin, HookResult, HookStrategy
+from client_utils import send_message, run_on_queue
+from ui.settings import Header, Input
+from java.util import Locale
+import time
+import re
+
+__id__ = "mathplug"
+__name__ = "MathHelper"
+__description__ = "Используй .math для вычислений"
+__author__ = "@RussianDSG & @nedenchiz"
+__version__ = "1.0"
+__icon__ = "🧮"
+__min_version__ = "11.12.0"
+
+class LocalizationManager:
+    def __init__(self):
+        self.language = "ru"
+
+    def set_language(self, lang):
+        if lang in self.strings:
+            self.language = lang
+
+    def get_string(self, string):
+        return self.strings[self.language][string]
+
+    strings = {
+        "ru": {
+            "GUIDE": "🧮 Калькулятор Guide v1.0\n\n📝 Команды:\n.math <выражение> – вычисление математического выражения\n\nПримеры:\n.math 2+2\n.math 15*3\n.math (10+5)/3\n.math sqrt(16)\n\n📊 Поддерживаемые операции:\n+ сложение, - вычитание\n* умножение, / деление\n** возведение в степень\n% остаток от деления\n\n🔢 Функции:\nsqrt(x) – квадратный корень\nabs(x) – модуль числа\nround(x) – округление\n",
+            "USAGE": "Использование: .math <выражение>\nПример: .math 2+2*3",
+            "RESULT": "Результат: {} = {}",
+            "ERROR": "Ошибка вычисления: {}",
+            "SYNTAX_ERROR": "Синтаксическая ошибка в выражении",
+            "DIVISION_ZERO": "Деление на ноль невозможно",
+            "LANG_SET": "Язык переключен на {lang}",
+        },
+        "en": {
+            "GUIDE": "🧮 Calculator Guide v1.0\n\n📝 Commands:\n.math <expression> – evaluate mathematical expression\n\nExamples:\n.math 2+2\n.math 15*3\n.math (10+5)/3\n.math sqrt(16)\n\n📊 Supported operations:\n+ addition, - subtraction\n* multiplication, / division\n** exponentiation\n% modulo\n\n🔢 Functions:\nsqrt(x) – square root\nabs(x) – absolute value\nround(x) – rounding\n",
+            "USAGE": "Usage: .math <expression>\nExample: .math 2+2*3",
+            "RESULT": "Result: {} = {}",
+            "ERROR": "Calculation error: {}",
+            "SYNTAX_ERROR": "Syntax error in expression",
+            "DIVISION_ZERO": "Division by zero is not possible",
+            "LANG_SET": "Language set to {lang}",
+        }
+    }
+
+locali = LocalizationManager()
+
+class CalculatorPlugin(BasePlugin):
+    def on_plugin_load(self):
+        self.add_on_send_message_hook()
+
+    def create_settings(self):
+        return [
+            Header("Calculator v1.0 settings"),
+            Input(key="calc_precision", text="Decimal precision", default="2"),
+        ]
+
+    def safe_eval(self, expression):
+        try:
+            expression = expression.replace(' ', '')
+            
+            if any(char in expression for char in ['import', 'exec', 'eval', 'open', 'file', 'os', 'sys', '__']):
+                raise ValueError("Invalid expression")
+            
+            expression = expression.replace('sqrt', 'math.sqrt')
+            expression = expression.replace('abs', 'math.fabs')
+            expression = expression.replace('round', 'round')
+            
+            import math
+            
+            result = eval(expression, {'math': math, '__builtins__': {}})
+            
+            try:
+                precision = int(self.get_setting("calc_precision") or "2")
+            except:
+                precision = 2
+                
+            if isinstance(result, float):
+                if result.is_integer():
+                    return int(result)
+                else:
+                    return round(result, precision)
+            return result
+            
+        except ZeroDivisionError:
+            raise ValueError(locali.get_string("DIVISION_ZERO"))
+        except SyntaxError:
+            raise ValueError(locali.get_string("SYNTAX_ERROR"))
+        except Exception as e:
+            raise ValueError(str(e))
+
+    def on_send_message_hook(self, account, params):
+        if not hasattr(params, "message") or not isinstance(params.message, str):
+            return HookResult()
+
+        text = params.message.strip()
+
+        if text.startswith(".guide"):
+            params.message = locali.get_string("GUIDE")
+            return HookResult(strategy=HookStrategy.MODIFY, params=params)
+
+        if text.startswith(".lang"):
+            parts = text.split()
+            if len(parts) > 1 and parts[1] in ["ru", "en"]:
+                locali.set_language(parts[1])
+                params.message = locali.get_string("LANG_SET").format(lang=parts[1])
+            else:
+                params.message = "Usage: .lang ru/en"
+            return HookResult(strategy=HookStrategy.MODIFY, params=params)
+
+        if text.startswith(".math"):
+            try:
+                parts = text.split(maxsplit=1)
+                if len(parts) < 2:
+                    params.message = locali.get_string("USAGE")
+                    return HookResult(strategy=HookStrategy.MODIFY, params=params)
+                
+                expression = parts[1]
+                result = self.safe_eval(expression)
+                
+                params.message = locali.get_string("RESULT").format(expression, result)
+                return HookResult(strategy=HookStrategy.MODIFY, params=params)
+                
+            except ValueError as e:
+                params.message = locali.get_string("ERROR").format(str(e))
+                return HookResult(strategy=HookStrategy.MODIFY, params=params)
+            except Exception:
+                params.message = locali.get_string("SYNTAX_ERROR")
+                return HookResult(strategy=HookStrategy.MODIFY, params=params)
+
+        return HookResult()
