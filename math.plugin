@@ -26,7 +26,7 @@ class LocalizationManager:
 
     strings = {
         "ru": {
-            "GUIDE": "🧮 Калькулятор Guide v1.0\n\n📝 Команды:\n.math <выражение> – вычисление математического выражения\n\nПримеры:\n.math 2+2\n.math 15*3\n.math (10+5)/3\n.math sqrt(16)\n\n📊 Поддерживаемые операции:\n+ сложение, - вычитание\n* умножение, / деление\n** возведение в степень\n% остаток от деления\n\n🔢 Функции:\nsqrt(x) – квадратный корень\nabs(x) – модуль числа\nround(x) – округление\n",
+            "GUIDE": "🧮 Калькулятор v1.0\n\n📝 Команды:\n.math <выражение> – вычисление математического выражения\n\nПримеры:\n.math 2+2\n.math 15*3\n.math (10+5)/3\n.math sqrt(16)\n\n📊 Поддерживаемые операции:\n+ сложение, - вычитание\n* умножение, / деление\n** возведение в степень\n% остаток от деления\n\n🔢 Функции:\nsqrt(x) – квадратный корень\nabs(x) – модуль числа\nround(x) – округление\n",
             "USAGE": "Использование: .math <выражение>\nПример: .math 2+2*3",
             "RESULT": "Результат: {} = {}",
             "ERROR": "Ошибка вычисления: {}",
@@ -35,7 +35,7 @@ class LocalizationManager:
             "LANG_SET": "Язык переключен на {lang}",
         },
         "en": {
-            "GUIDE": "🧮 Calculator Guide v1.0\n\n📝 Commands:\n.math <expression> – evaluate mathematical expression\n\nExamples:\n.math 2+2\n.math 15*3\n.math (10+5)/3\n.math sqrt(16)\n\n📊 Supported operations:\n+ addition, - subtraction\n* multiplication, / division\n** exponentiation\n% modulo\n\n🔢 Functions:\nsqrt(x) – square root\nabs(x) – absolute value\nround(x) – rounding\n",
+            "GUIDE": "🧮 Calculator v1.0\n\n📝 Commands:\n.math <expression> – evaluate mathematical expression\n\nExamples:\n.math 2+2\n.math 15*3\n.math (10+5)/3\n.math sqrt(16)\n\n📊 Supported operations:\n+ addition, - subtraction\n* multiplication, / division\n** exponentiation\n% modulo\n\n🔢 Functions:\nsqrt(x) – square root\nabs(x) – absolute value\nround(x) – rounding\n",
             "USAGE": "Usage: .math <expression>\nExample: .math 2+2*3",
             "RESULT": "Result: {} = {}",
             "ERROR": "Calculation error: {}",
